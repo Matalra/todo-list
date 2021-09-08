@@ -18,6 +18,7 @@ function criaTarefa(textoInput){
     li.innerText = textoInput
     li.appendChild(btn)
     tarefas.appendChild(li)
+    salvaTarefas()
     limpaInput()
 }
 
@@ -50,11 +51,40 @@ inputTarefa.addEventListener('keypress', function(e){
 // TODO quando botão com classe "remover" for clicado irá deletar o parente <li class="tarefa">,
 // apagando a tarefa
 tarefas.addEventListener('click', function(e){
-    let target = e.target
-    let parente = target.parentElement
+    let target = e.target;
+    let parente = target.parentElement;
     if (target.classList.contains('remove') && parente.classList.contains('tarefa')){
-        parente.remove();
+        removeTarefa(target);
     }
 }) 
 
-// TODO criar memoria de sessão para a lista de tarefas.
+function removeTarefa(tarefa) {
+    tarefa.parentElement.remove()
+    salvaTarefas()
+}
+
+// TODO criar memoria local para a lista de tarefas.
+
+function salvaTarefas() {
+    let listaTarefas = tarefas.querySelectorAll('.tarefa')
+    let tarefasParaSalvar = []
+
+    for (let task of listaTarefas){
+        let tarefaText = task.innerText
+        tarefaText = tarefaText.replace('X','').trim()
+        tarefasParaSalvar.push(tarefaText)
+    }
+
+    let tarefasJSON = JSON.stringify(tarefasParaSalvar);
+    localStorage.setItem('tarefas', tarefasJSON)
+}
+
+abrirTarefasSalvas()
+
+function abrirTarefasSalvas() {
+    let tarefasJSON = localStorage.getItem('tarefas')
+    let listaTarefas = JSON.parse(tarefasJSON)
+    for (let tarefa of listaTarefas){
+        criaTarefa(tarefa)
+    }
+}
