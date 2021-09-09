@@ -1,12 +1,42 @@
+/*  Lista de tarefas
+/
+/ Cria um elemento <li> dentro de uma tabela HTML quando o botão "Adicionar tarefa" ou enter
+/ são pressionados.
+/
+/ Quando criado o valor de innerText de cada <li> é salvo em localSotarageque mantem as
+/ tarefas criadas salvas caso o usuario saia de sessão.
+/
+/ Usuarios podem excluir tarefas ao clicar no botão X ao lado de tal, exlcuindo a parent <li>.
+/ Ao deletar, o valor dessa tarefa é removido do localStorage.
+*/
+
 const inputTarefa = document.querySelector('.input-tarefa');
 const addTarefa = document.querySelector('.adicionar');
 const tarefas = document.querySelector('.tarefas');
+
 
 addTarefa.addEventListener('click', function(){
     criaTarefa(inputTarefa.value);
 })
 
-// TODO quando apertar o botao "adcionar tarefa" cria elemento <li> com botao para remover tarefa
+inputTarefa.addEventListener('keypress', function(e){
+    if (e.keyCode === 13){
+        criaTarefa(inputTarefa.value)
+    }
+})
+
+tarefas.addEventListener('click', function(e){
+    let target = e.target;
+    let parente = target.parentElement;
+    if (target.classList.contains('remove') && parente.classList.contains('tarefa')){
+        removeTarefa(target);
+    }
+}) 
+
+abrirTarefasSalvas()
+
+// Function configs
+
 function criaTarefa(textoInput){
     if(!textoInput){
         console.log('vazio')
@@ -14,7 +44,8 @@ function criaTarefa(textoInput){
     }
 
     let li = criaLI()
-    let btn = criaBTN()
+    let btn = criaRemoveBTN()
+   
     li.innerText = textoInput
     li.appendChild(btn)
     tarefas.appendChild(li)
@@ -33,7 +64,7 @@ function criaLI(){
     return li
 }
 
-function criaBTN(){
+function criaRemoveBTN(){
     let btn = document.createElement('button')
     btn.setAttribute('class','btn round-btn remove')
     btn.setAttribute('title','Remover Tarefa')
@@ -41,29 +72,10 @@ function criaBTN(){
     return btn
 }
 
-// TODO quando apertar enter enquanto o input estiver focado, adiciona a tarefa escrita
-inputTarefa.addEventListener('keypress', function(e){
-    if (e.keyCode === 13){
-        criaTarefa(inputTarefa.value)
-    }
-})
-
-// TODO quando botão com classe "remover" for clicado irá deletar o parente <li class="tarefa">,
-// apagando a tarefa
-tarefas.addEventListener('click', function(e){
-    let target = e.target;
-    let parente = target.parentElement;
-    if (target.classList.contains('remove') && parente.classList.contains('tarefa')){
-        removeTarefa(target);
-    }
-}) 
-
 function removeTarefa(tarefa) {
     tarefa.parentElement.remove()
     salvaTarefas()
 }
-
-// TODO criar memoria local para a lista de tarefas.
 
 function salvaTarefas() {
     let listaTarefas = tarefas.querySelectorAll('.tarefa')
@@ -78,8 +90,6 @@ function salvaTarefas() {
     let tarefasJSON = JSON.stringify(tarefasParaSalvar);
     localStorage.setItem('tarefas', tarefasJSON)
 }
-
-abrirTarefasSalvas()
 
 function abrirTarefasSalvas() {
     let tarefasJSON = localStorage.getItem('tarefas')
